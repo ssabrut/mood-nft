@@ -4,6 +4,8 @@ pragma solidity ^0.8.19;
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
+error MoodNFT__CantFlipMoodIfNotOwner();
+
 contract MoodNFT is ERC721 {
     uint256 private s_tokenCounter;
     string private s_sadSvgImageURI;
@@ -29,6 +31,19 @@ contract MoodNFT is ERC721 {
         _safeMint(msg.sender, s_tokenCounter);
         s_tokenIdToMood[s_tokenCounter] = Mood.HAPPY;
         s_tokenCounter++;
+    }
+
+    function flipMood(uint256 _tokenId) public {
+        // only want the NFT owner to change the mood
+        if (!_isApprovedOrOwner(msg.sender, _tokenId)) {
+            revert MoodNFT__CantFlipMoodIfNotOwner();
+        }
+
+        if (s_tokenIdToMood[_tokenId] == Mood.HAPPY) {
+            s_tokenIdToMood[_tokenId] = Mood.SAD;
+        } else {
+            s_tokenIdToMood[_tokenId] = Mood.HAPPY;
+        }
     }
 
     function _baseURI() internal pure override returns (string memory) {
