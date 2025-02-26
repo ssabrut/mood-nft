@@ -65,4 +65,24 @@ contract Encoding {
         string memory someString = string(multiEncodePacked());
         return someString;
     }
+
+    // Remember how before I said you always need two things to call a contract:
+    // 1. ABI
+    // 2. Contract Address?
+    // Well... That was true, but you don't need that massive ABI file. All we need to know is how to create the binary to call
+    // the functions that we want to call.
+
+    // Solidity has some more "low-level" keywords, namely "staticcall" and "call". We've used call in the past, but
+    // haven't really explained what was going on. There is also "send"... but basically forget about send.
+
+    // call: How we call functions to change the state of the blockchain.
+    // staticcall: This is how (at a low level) we do our "view" or "pure" function calls, and potentially don't change the blockchain state.
+
+    // When you call a function, you are secretly calling "call" behind the scenes, with everything compiled down to the binary stuff
+    // for you. Flashback to when we withdrew ETH from our raffle:
+
+    function withdraw(address recentWinner) public {
+        (bool success, ) = recentWinner.call{value: address(this).balance}("");
+        require(success, "Transfer Failed");
+    }
 }
